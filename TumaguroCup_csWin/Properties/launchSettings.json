@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TumaguroCup_csWin (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "TumaguroCup_csWin (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
