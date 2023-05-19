@@ -29,11 +29,10 @@ namespace TumaguroCup_csWin
         public MainWindow()
         {
             this.InitializeComponent();
-        }
+            this.ExtendsContentIntoTitleBar = true;
+            this.SetTitleBar(Topbar);
 
-        private void myButton_Click(object sender, RoutedEventArgs e)
-        {
-            myButton.Content = "Clicked";
+            TranceratedText.Text = "hogehoge!!!!!!!!!!!!!!";
         }
     }
 }
