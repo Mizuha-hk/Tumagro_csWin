@@ -5,7 +5,8 @@
     x:Class="TumaguroCup_csWin.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:TumaguroCup_csWin">
+    xmlns:local="using:TumaguroCup_csWin"
+    RequestedTheme="Light">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
