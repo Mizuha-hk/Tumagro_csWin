@@ -41,7 +41,9 @@
             VerticalAlignment="Center"
             Height="50"
             Orientation="Horizontal">
-
+            
+            
+            <!--RecognizerModeChange-->
             <ComboBox
                 x:Name="ModeChange"
                 IsEnabled="True"
@@ -55,8 +57,14 @@
                 <TextBlock
                     Text="日本語->英語"/>
                 <TextBlock
-                    Text="翻訳しない"/>
+                    Text="翻訳無し(日本語)"/>
+                <TextBlock
+                    Text="翻訳無し(英語)"/>
             </ComboBox>
+            
+            <!---->
+            
+            
         </StackPanel>
 
         <!--MainContents-->

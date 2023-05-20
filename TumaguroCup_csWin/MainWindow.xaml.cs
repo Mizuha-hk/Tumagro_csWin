@@ -118,6 +118,11 @@ namespace TumaguroCup_csWin
                 {
                     //OCR
                     var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
+                    if (text == null)
+                    {
+                        RichText.Text = "文字が検出されませんでした。";
+                        return;
+                    }
                     RichText.Text = text;
                     //DeepL
                     var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
@@ -127,6 +132,22 @@ namespace TumaguroCup_csWin
                 {
                     //OCR
                     var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
+                    if (text == null)
+                    {
+                        RichText.Text = "文字が検出されませんでした。";
+                        return;
+                    }
+                    RichText.Text = text;
+                }
+                else if (ModeChange.SelectedIndex == 3) 
+                {
+                    //OCR
+                    var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.EN);
+                    if (text == null)
+                    {
+                        RichText.Text = "文字が検出されませんでした。";
+                        return;
+                    }
                     RichText.Text = text;
                 }
             }
@@ -137,6 +158,12 @@ namespace TumaguroCup_csWin
                 if(text != null)
                 {
                     RichText.Text = text;
+
+                    if(ModeChange.SelectedIndex == 2 || ModeChange.SelectedIndex == 3)
+                    {
+                        return;
+                    }
+
                     //翻訳処理にぶん投げる
                     var result = await Translator.Translator.Translate(Language.Language.JA, text);
                     TranceratedText.Text = result;
@@ -160,6 +187,8 @@ namespace TumaguroCup_csWin
                 SuggestedStartLocation = PickerLocationId.PicturesLibrary
             };
             picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
 
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
