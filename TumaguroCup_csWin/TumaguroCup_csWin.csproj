@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />
-    <Folder Include="API\" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\LogPage.xaml">
