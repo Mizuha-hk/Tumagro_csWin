@@ -33,7 +33,14 @@ namespace TumaguroCup_csWin.Library
             // ☟別スレッドでやるときも、作成済みのSoftwareBitmapインスタンスを渡してよい
             byte[] bytedata = await ConvertSoftwareBitmapToByte(softwareBitmap);
             Result result = await Task.Run(() => _reader.Decode(bytedata));
-            return result.Text;
+            if(result != null)
+            {
+                return result.Text;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         //SoftwareBitmapからbyte[]への変換
