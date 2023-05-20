@@ -8,6 +8,7 @@
     xmlns:local="using:TumaguroCup_csWin"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
 
@@ -66,6 +67,19 @@
                         BorderThickness="0,0,1,0"
                         Background="#eeeeee"
                         Orientation="Vertical">
+                        <Border
+                            BorderBrush="#006064"
+                            BorderThickness="2"
+                            CornerRadius="5"
+                            Width="150"
+                            Height="150"
+                            Margin="5,20,5,0">
+                            
+                            <Image
+                                x:Name="InputPictureView"
+                                MaxHeight="150"
+                                MaxWidth="150"/>
+                        </Border>
 
                     </StackPanel>
 
@@ -85,6 +99,7 @@
                             Background="#fff"
                             BorderBrush="#000"
                             TextWrapping="Wrap"
+                            MaxWidth="800"
                             BorderThickness="0,0,0,1"
                             >
 
@@ -106,8 +121,11 @@
                         </RichTextBlock>
                     </Grid>
 
-                    <!--ToolParet-->
-                    <Page></Page>
+                    <!--ToolPalette-->
+                    <Frame
+                        x:Name="ToolPalette"
+                        Grid.Column="2"
+                        />
                 </Grid>
             </ScrollViewer>
 
