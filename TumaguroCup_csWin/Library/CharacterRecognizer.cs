@@ -10,31 +10,18 @@ using Windows.Media.Ocr;
 
 namespace TumaguroCup_csWin.Library
 {
+    public readonly struct Language
+    {
+        public static string JP = "ja-JP";
+        public static string EN = "en-US";
+    }
     internal class CharacterRecognizer
     {
-        /*
-        private async Task<SoftwareBitmap> ConvertBitmapImageToSoftwareBitmap(BitmapImage bitmapImage)
+        
+        public static async Task<string> RunOcr(SoftwareBitmap sbitmap, string lang)
         {
-            SoftwareBitmap sbitmap = null;
-
-            using (var stream = await bitmapImage.OpenR)
-            {
-
-                // Create the decoder from the stream
-                BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
-
-                // Get the SoftwareBitmap representation of the file
-                sbitmap = await decoder.GetSoftwareBitmapAsync();
-            }
-            return sbitmap;
-        }
-        */
-
-        private static async Task<string> RunOcr(SoftwareBitmap sbitmap)
-        {
-            //var sbitmap = await ConvertBitmapImageToSoftwareBitmap(bimage);
             //OCRを実行する
-            OcrEngine engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language("ja-JP"));
+            OcrEngine engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language(lang));
             var result = await engine.RecognizeAsync(sbitmap);
             return result.Text;
         }
