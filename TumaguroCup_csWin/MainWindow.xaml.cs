@@ -160,5 +160,10 @@ namespace TumaguroCup_csWin
                 //ˆê’U•ú’u
             }
         }
+
+        private void TrancelationModeButton_Click(object sender, RoutedEventArgs e)
+        {
+            ModeChange.IsDropDownOpen = true;
+        }
     }
 }
