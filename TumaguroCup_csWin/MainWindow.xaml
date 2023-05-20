@@ -48,6 +48,7 @@
                 IsDropDownOpen="True"
                 Width="150"
                 Margin="10"
+                SelectedIndex="0"
                 >
                 <TextBlock
                     Text="英語->日本語"/>

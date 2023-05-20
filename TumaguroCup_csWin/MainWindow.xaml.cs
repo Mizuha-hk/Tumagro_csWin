@@ -100,13 +100,35 @@ namespace TumaguroCup_csWin
 
                 InputPictureView.Source = source;
 
-                //OCRÇ…Ç‘ÇÒìäÇ∞ÇÈ
-                var text = await CharacterRecognizer.RunOcr(image);
-
-                RichText.Text = text;
-                //ñ|ñÛèàóùÇ…Ç‘ÇÒìäÇ∞ÇÈ
-                var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
-                TranceratedText.Text = result;
+                if(ModeChange.SelectedIndex == 0)
+                {
+                    //OCR
+                    var text = await CharacterRecognizer.RunOcr(image,TumaguroCup_csWin.Library.Language.EN);
+                    if(text ==  null)
+                    {
+                        RichText.Text = "ï∂éöÇ™åüèoÇ≥ÇÍÇ‹ÇπÇÒÇ≈ÇµÇΩÅB";
+                        return;
+                    }
+                    RichText.Text = text;
+                    //DeepL
+                    var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
+                    TranceratedText.Text = result;
+                }
+                else if(ModeChange.SelectedIndex == 1)
+                {
+                    //OCR
+                    var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
+                    RichText.Text = text;
+                    //DeepL
+                    var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
+                    TranceratedText.Text = result;
+                }
+                else if (ModeChange.SelectedIndex == 2)
+                {
+                    //OCR
+                    var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
+                    RichText.Text = text;
+                }
             }
             else
             {
