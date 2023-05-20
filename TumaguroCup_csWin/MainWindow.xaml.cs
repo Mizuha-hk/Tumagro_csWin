@@ -24,6 +24,11 @@ using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 
+using Translator;
+using Language;
+using TumaguroCup_csWin.Library;
+using Windows.Globalization;
+
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -39,12 +44,12 @@ namespace TumaguroCup_csWin
             this.InitializeComponent();
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(Topbar);
+            Clipboard.Clear();
 
             //Add EventHandler
             Clipboard.ContentChanged += new EventHandler<object>(this.Clipboad_Chenged);
 
             ToolPalette.SourcePageType = typeof(LogPage);
-            TranceratedText.Text = "hogehoge!!!!!!!!!!!!!!";
         }
 
         //GetContentFromClipBoad
@@ -94,8 +99,14 @@ namespace TumaguroCup_csWin
                 await source.SetBitmapAsync(image);
 
                 InputPictureView.Source = source;
-                //ORC‚É‚Ô‚ñ“Š‚°‚é
+
+                //OCR‚É‚Ô‚ñ“Š‚°‚é
+                var text = await CharacterRecognizer.RunOcr(image);
+
+                RichText.Text = text;
                 //–|–óˆ—‚É‚Ô‚ñ“Š‚°‚é
+                var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
+                TranceratedText.Text = result;
             }
             else
             {
@@ -105,6 +116,8 @@ namespace TumaguroCup_csWin
                 {
                     RichText.Text = text;
                     //–|–óˆ—‚É‚Ô‚ñ“Š‚°‚é
+                    var result = await Translator.Translator.Translate(Language.Language.JA, text);
+                    TranceratedText.Text = result;
                 }
                 else
                 {

@@ -118,27 +118,30 @@
                             Background="#fff"
                             BorderBrush="#000"
                             TextWrapping="Wrap"
+                            AcceptsReturn="True"
                             MaxWidth="800"
                             MinWidth="500"
                             BorderThickness="0,0,0,1"
                             >
 
                         </TextBox>
-
-                        <RichTextBlock
-                            Grid.Row="1"
-                            IsTextSelectionEnabled="True"
-                            FontSize="20"
-                            FontWeight="Bold"
-                            >
-                            
-                            <Paragraph
-                                Margin="10,0,10,0"
+                        <ScrollViewer
+                            Grid.Row="1">
+                            <RichTextBlock
+                                MaxWidth="800"
+                                MinWidth="500"
+                                IsTextSelectionEnabled="True"
+                                FontSize="20"
+                                FontWeight="Bold"
                                 >
-                                <Run
-                                    x:Name="TranceratedText"/>
-                            </Paragraph>
-                        </RichTextBlock>
+                                <Paragraph
+                                    Margin="10,0,10,0"
+                                    >
+                                    <Run
+                                        x:Name="TranceratedText"/>
+                                </Paragraph>
+                            </RichTextBlock>
+                        </ScrollViewer>
                     </Grid>
 
                     <!--ToolPalette-->

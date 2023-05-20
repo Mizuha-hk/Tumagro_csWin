@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Translator
 {
@@ -12,9 +14,9 @@ namespace Translator
         /// <param name="sentence">原文</param>
         /// <param name="source_lang">原文の言語</param>
         /// <returns>翻訳文</returns>
-        static public string Translate(string target_lang, string sentence, string source_lang = "")
+        static public async Task<string> Translate(string target_lang, string sentence, string source_lang = "")
         {
-            var result = CallDeeplAPI.Post(target_lang, sentence, source_lang).Result;
+            var result = await CallDeeplAPI.Post(target_lang, sentence, source_lang);
             string resultStr = result.Content.ReadAsStringAsync().Result;
 
             // JSON文字列をパースしてJsonDocumentオブジェクトを作成
