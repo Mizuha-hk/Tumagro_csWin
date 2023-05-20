@@ -8,7 +8,6 @@
     xmlns:local="using:TumaguroCup_csWin"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
 
@@ -74,13 +73,33 @@
                             Width="150"
                             Height="150"
                             Margin="5,20,5,0">
-                            
+
                             <Image
                                 x:Name="InputPictureView"
                                 MaxHeight="150"
                                 MaxWidth="150"/>
                         </Border>
 
+                        <TextBox
+                            x:Name="FileSource"
+                            Margin="5,20,5,5"
+                            IsReadOnly="True"
+                            />
+                        <StackPanel
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal">
+                            <Button
+                                x:Name="ReferenceButton"
+                                Margin="0,0,5,0"
+                                Content="参照..."
+                                Click="ReferenceButton_Click"/>
+                            <Button
+                                x:Name="ImportButton"
+                                Margin="0,0,5,0"
+                                Background="#4DD0E1"
+                                Content="インポート"
+                                Click="ImportButton_Click"/>
+                        </StackPanel>
                     </StackPanel>
 
                     <!--MainText-->
@@ -100,6 +119,7 @@
                             BorderBrush="#000"
                             TextWrapping="Wrap"
                             MaxWidth="800"
+                            MinWidth="500"
                             BorderThickness="0,0,0,1"
                             >
 
@@ -110,8 +130,8 @@
                             IsTextSelectionEnabled="True"
                             FontSize="20"
                             FontWeight="Bold"
-                        
                             >
+                            
                             <Paragraph
                                 Margin="10,0,10,0"
                                 >

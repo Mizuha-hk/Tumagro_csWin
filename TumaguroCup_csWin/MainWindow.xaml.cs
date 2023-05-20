@@ -13,12 +13,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TumaguroCup_csWin.Pages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics.Imaging;
+using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -45,7 +48,7 @@ namespace TumaguroCup_csWin
         }
 
         //GetContentFromClipBoad
-        private async Task<BitmapImage> GetClipboardImage()
+        private async Task<SoftwareBitmap> GetClipboardImage()
         {
             DataPackageView dataPackageView = Clipboard.GetContent();
 
@@ -54,10 +57,10 @@ namespace TumaguroCup_csWin
                 RandomAccessStreamReference imageStreamRef = await dataPackageView.GetBitmapAsync();
                 using (IRandomAccessStreamWithContentType streamWithContent = await imageStreamRef.OpenReadAsync())
                 {
-                    //ToBitmapImage
-                    BitmapImage bitmapImage = new BitmapImage();
-                    await bitmapImage.SetSourceAsync(streamWithContent);
-                    return bitmapImage;
+                    // SoftwareBitmapに変換する
+                    BitmapDecoder decoder = await BitmapDecoder.CreateAsync(streamWithContent);
+                    SoftwareBitmap softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+                    return softwareBitmap;
                 }
             }
             return null;
@@ -78,10 +81,19 @@ namespace TumaguroCup_csWin
         //EventHandler
         private async void Clipboad_Chenged(object sender, object e)
         {
-            BitmapImage image = await GetClipboardImage();
+            SoftwareBitmap image = await GetClipboardImage();
             if(image != null)
             {
-                InputPictureView.Source = image;
+                if (image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
+                    image.BitmapAlphaMode == BitmapAlphaMode.Straight)
+                {
+                    image = SoftwareBitmap.Convert(image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                }
+
+                var source = new SoftwareBitmapSource();
+                await source.SetBitmapAsync(image);
+
+                InputPictureView.Source = source;
                 //ORCにぶん投げる
                 //翻訳処理にぶん投げる
             }
@@ -98,6 +110,41 @@ namespace TumaguroCup_csWin
                 {
                     RichText.Text = "クリップボードがクリアされました";
                 }
+            }
+        }
+
+        private BitmapImage inputImage = null;
+
+        private async void ReferenceButton_Click(object sender, RoutedEventArgs e)
+        {
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary
+            };
+            picker.FileTypeFilter.Add(".jpg");
+
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSingleFileAsync();
+
+            if (file != null)
+            {
+                var bitmap = new BitmapImage();
+                bitmap.UriSource = new Uri(file.Path, UriKind.Absolute);
+
+                InputPictureView.Source = bitmap;
+                FileSource.Text = file.Path.ToString();
+            }
+        }
+
+        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(inputImage != null)
+            {
+                //一旦放置
             }
         }
     }
