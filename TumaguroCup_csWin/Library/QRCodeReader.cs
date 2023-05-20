@@ -23,16 +23,14 @@ namespace TumaguroCup_csWin.Library
                 softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             }
             // バーコード読み取り
-            BarcodeReader _reader = new BarcodeReader
-            {
-                AutoRotate = true,
-                Options = { TryHarder = true }
-            };
+            BarcodeReader _reader = new BarcodeReader();
+
             // UWPではSoftwareBitmapかWriteableBitmapを渡す
             //ZXing.Result result = _reader.Decode(softwareBitmap);
             // ☟別スレッドでやるときも、作成済みのSoftwareBitmapインスタンスを渡してよい
             byte[] bytedata = await ConvertSoftwareBitmapToByte(softwareBitmap);
-            Result result = await Task.Run(() => _reader.Decode(bytedata));
+            ZXing.Result result = _reader.Decode(bytedata);
+
             if(result != null)
             {
                 return result.Text;
