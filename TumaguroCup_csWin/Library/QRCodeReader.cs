@@ -15,6 +15,7 @@ namespace TumaguroCup_csWin.Library
     {
         public static async Task<string> QRCodeRead(SoftwareBitmap softwareBitmap)
         {
+            /*
             // Image コントロールは、BGRA8 エンコードを使用し、プリマルチプライ処理済みまたはアルファ チャネルなしの画像しか受け取れない
             // 異なるフォーマットの場合は変換する☟
             if (softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8
@@ -22,14 +23,21 @@ namespace TumaguroCup_csWin.Library
             {
                 softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             }
+            */
+
             // バーコード読み取り
-            BarcodeReader _reader = new BarcodeReader();
+            var _reader = new BarcodeReaderGeneric
+            {
+                AutoRotate = true,
+                Options = { TryHarder = true }
+            };
 
             // UWPではSoftwareBitmapかWriteableBitmapを渡す
             //ZXing.Result result = _reader.Decode(softwareBitmap);
             // ☟別スレッドでやるときも、作成済みのSoftwareBitmapインスタンスを渡してよい
             byte[] bytedata = await ConvertSoftwareBitmapToByte(softwareBitmap);
-            ZXing.Result result = _reader.Decode(bytedata);
+
+            Result result = _reader.Decode(bytedata, softwareBitmap.PixelWidth, softwareBitmap.PixelHeight, RGBLuminanceSource.BitmapFormat.Unknown);
 
             if(result != null)
             {
