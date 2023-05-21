@@ -17,7 +17,7 @@ namespace Translator
                 apiKey = ReadApiKey("./temp.json");
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -29,7 +29,7 @@ namespace Translator
 
             JsonDocument jsonDocument = JsonDocument.Parse(json);
             JsonElement rootElement = jsonDocument.RootElement;
-            string? apiKey = rootElement.GetProperty("APIKEY").GetString();
+            string apiKey = rootElement.GetProperty("APIKEY").GetString();
             if (apiKey == null)
             {
                 return "";
@@ -49,7 +49,7 @@ namespace Translator
         /// <returns>翻訳文</returns>
         static public async Task<string> Translate(string target_lang, string sentence, string source_lang = "")
         {
-            var result = await CallDeeplAPI.Post(target_lang, sentence, source_lang, apiKey);
+            var result = await CallDeeplAPI.Post(apiKey, target_lang, sentence, source_lang);
             string resultStr = result.Content.ReadAsStringAsync().Result;
 
             // JSON文字列をパースしてJsonDocumentオブジェクトを作成
@@ -59,7 +59,7 @@ namespace Translator
             JsonElement rootElement = jsonDocument.RootElement;
             JsonElement translationsElement = rootElement.GetProperty("translations");
             JsonElement firstTranslationElement = translationsElement[0];
-            string? text = firstTranslationElement.GetProperty("text").GetString();
+            string text = firstTranslationElement.GetProperty("text").GetString();
 
             if(text == null)
             {
@@ -75,7 +75,7 @@ namespace Translator
     static class CallDeeplAPI
     {
         static HttpClient httpClient = new HttpClient();
-        static public async Task<HttpResponseMessage> Post(string target_lang, string sentence, string source_lang = "", string apiKey)
+        static public async Task<HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
         {
             var multiForm = new MultipartFormDataContent();
 
