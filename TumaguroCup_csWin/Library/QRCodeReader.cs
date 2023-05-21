@@ -15,16 +15,6 @@ namespace TumaguroCup_csWin.Library
     {
         public static async Task<string> QRCodeRead(SoftwareBitmap softwareBitmap)
         {
-            /*
-            // Image コントロールは、BGRA8 エンコードを使用し、プリマルチプライ処理済みまたはアルファ チャネルなしの画像しか受け取れない
-            // 異なるフォーマットの場合は変換する☟
-            if (softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8
-                || softwareBitmap.BitmapAlphaMode == BitmapAlphaMode.Straight)
-            {
-                softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-            }
-            */
-
             // バーコード読み取り
             var _reader = new BarcodeReaderGeneric
             {
