@@ -24,8 +24,20 @@ namespace TumaguroCup_csWin.Library
             OcrEngine engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language(lang));
             if(engine != null ) 
             {
+                string str = "";
                 var result = await engine.RecognizeAsync(sbitmap);
-                return result.Text;
+                foreach( var line in result.Lines )
+                {
+                    str += line.Text + "\n";
+                    /*
+                    foreach( var word in line.Words )
+                    {
+                        double posX = word.BoundingRect.X;
+                        double posY = word.BoundingRect.Y;
+                    }
+                    */
+                }
+                return str;
             }
             return null;
         }
