@@ -28,6 +28,13 @@ using Translator;
 using Language;
 using TumaguroCup_csWin.Library;
 using Windows.Globalization;
+using ZXing;
+using CommunityToolkit.WinUI.UI.Triggers;
+using System.Drawing;
+using System.IO.Compression;
+using Windows.Storage;
+using System.Runtime.InteropServices;
+using static System.Net.Mime.MediaTypeNames;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -39,17 +46,24 @@ namespace TumaguroCup_csWin
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             this.InitializeComponent();
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(Topbar);
-            Clipboard.Clear();
 
             //Add EventHandler
             Clipboard.ContentChanged += new EventHandler<object>(this.Clipboad_Chenged);
+            
 
-            ToolPalette.SourcePageType = typeof(LogPage);
+            ToolPalette.SourcePageType = typeof(Note);
+        }
+
+        public void LogSelected(string inputText,string outputText)
+        {
+            RichText.Text = inputText;
+            TranceratedText.Text = outputText;
         }
 
         //GetContentFromClipBoad
@@ -104,31 +118,75 @@ namespace TumaguroCup_csWin
                 {
                     //OCR
                     var text = await CharacterRecognizer.RunOcr(image,TumaguroCup_csWin.Library.Language.EN);
-                    if(text ==  null)
+                    Task.WaitAll();
+
+                    if(text == null)
                     {
-                        RichText.Text = "文字が検出されませんでした。";
-                        return;
+                        text = "文字が検出されませんでした";
                     }
                     RichText.Text = text;
-                    //DeepL
-                    var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
-                    TranceratedText.Text = result;
+                    if(text != null)
+                    {
+                        //DeepL
+                        var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
+                        Task.WaitAll();
+                        TranceratedText.Text = result;
+                    }
                 }
                 else if(ModeChange.SelectedIndex == 1)
                 {
                     //OCR
                     var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
+                    Task.WaitAll();
+
+                    if(text == null)
+                    {
+                        text = "文字が検出されませんでした。";
+                    }
+                    
                     RichText.Text = text;
-                    //DeepL
-                    var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
-                    TranceratedText.Text = result;
+                    if (text != null)
+                    {
+                        //DeepL
+                        var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
+                        TranceratedText.Text = result;
+                    }           
                 }
                 else if (ModeChange.SelectedIndex == 2)
                 {
                     //OCR
                     var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
+                    Task.WaitAll();
+
+                    if (text == null)
+                    {
+                        text = "文字が検出されませんでした。";
+                    }
+
                     RichText.Text = text;
                 }
+                else if (ModeChange.SelectedIndex == 3) 
+                {
+                    //OCR
+                    var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.EN);
+                    Task.WaitAll();
+                    if (text == null)
+                    {
+                        text = "文字が検出されませんでした。";
+                    }
+                    RichText.Text = text;
+                }
+
+                /*if(ExtendOptionMode.SelectedIndex == 1)
+                {
+                    var qrContent = await QRCodeReader.QRCodeRead(image);
+                    if (qrContent != null)
+                    {
+                        RichText.Text = qrContent;
+                        ToolPalette.Navigate(typeof(WebViewPage),qrContent);
+                    }
+                }*/
+
             }
             else
             {
@@ -137,13 +195,24 @@ namespace TumaguroCup_csWin
                 if(text != null)
                 {
                     RichText.Text = text;
-                    //翻訳処理にぶん投げる
-                    var result = await Translator.Translator.Translate(Language.Language.JA, text);
-                    TranceratedText.Text = result;
-                }
-                else
-                {
-                    RichText.Text = "クリップボードがクリアされました";
+
+                    if(ModeChange.SelectedIndex == 2 || ModeChange.SelectedIndex == 3)
+                    {
+                        return;
+                    }
+
+                    if (ModeChange.SelectedIndex == 0)
+                    {
+                        var result = await Translator.Translator.Translate(Language.Language.JA, text);
+                        Task.WaitAll();
+                        TranceratedText.Text = result;
+                    }
+                    else if(ModeChange.SelectedIndex == 1)
+                    {
+                        var result = await Translator.Translator.Translate(Language.Language.EN, text);
+                        Task.WaitAll();
+                        TranceratedText.Text = result;
+                    }
                 }
             }
         }
@@ -160,6 +229,8 @@ namespace TumaguroCup_csWin
                 SuggestedStartLocation = PickerLocationId.PicturesLibrary
             };
             picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
 
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
@@ -175,17 +246,111 @@ namespace TumaguroCup_csWin
             }
         }
 
-        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        private async void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            if(inputImage != null)
+            SoftwareBitmap softwareBitmap;
+            if(string.IsNullOrEmpty(FileSource.Text)) { return; }
+
+            StorageFile inputFile = await StorageFile.GetFileFromPathAsync(FileSource.Text);
+
+            using (IRandomAccessStream stream = await inputFile.OpenAsync(FileAccessMode.Read))
             {
-                //一旦放置
+                BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+                softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+            }
+
+            if (ModeChange.SelectedIndex == 0)
+            {
+                //OCR
+                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.EN);
+                Task.WaitAll();
+
+                if (text == null)
+                {
+                    text = "文字が検出されませんでした";
+                }
+                RichText.Text = text;
+                if (text != null)
+                {
+                    //DeepL
+                    var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
+                    Task.WaitAll();
+                    TranceratedText.Text = result;
+                }
+            }
+            else if (ModeChange.SelectedIndex == 1)
+            {
+                //OCR
+                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.JP);
+                Task.WaitAll();
+
+                if (text == null)
+                {
+                    text = "文字が検出されませんでした。";
+                }
+
+                RichText.Text = text;
+                if (text != null)
+                {
+                    //DeepL
+                    var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
+                    TranceratedText.Text = result;
+                }
+            }
+            else if (ModeChange.SelectedIndex == 2)
+            {
+                //OCR
+                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.JP);
+                Task.WaitAll();
+
+                if (text == null)
+                {
+                    text = "文字が検出されませんでした。";
+                }
+
+                RichText.Text = text;
+            }
+            else if (ModeChange.SelectedIndex == 3)
+            {
+                //OCR
+                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.EN);
+                Task.WaitAll();
+                if (text == null)
+                {
+                    text = "文字が検出されませんでした。";
+                }
+                RichText.Text = text;
             }
         }
 
-        private void TrancelationModeButton_Click(object sender, RoutedEventArgs e)
+        private void LogButton_Click(object sender, RoutedEventArgs e)
         {
-            ModeChange.IsDropDownOpen = true;
+            ToolPalette.Navigate(typeof(Note));
+        }
+
+        private void webViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            ToolPalette.Navigate(typeof(WebViewPage));
+        }
+
+        private async void TracelationButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ModeChange.SelectedIndex == 0)
+            {
+                if(string.IsNullOrWhiteSpace(RichText.Text)) { return; }
+                //DeepL
+                var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
+                Task.WaitAll();
+                TranceratedText.Text = result;                
+            }
+            else if (ModeChange.SelectedIndex == 1)
+            {
+                if(string.IsNullOrEmpty(RichText.Text)) { return; }
+                //DeepL
+                var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
+                Task.WaitAll();
+                TranceratedText.Text = result;   
+            }
         }
     }
 }
