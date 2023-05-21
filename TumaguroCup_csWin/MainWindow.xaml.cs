@@ -177,15 +177,14 @@ namespace TumaguroCup_csWin
                     RichText.Text = text;
                 }
 
-                /*if(ExtendOptionMode.SelectedIndex == 1)
+                if (ExtendOptionMode.SelectedIndex == 1)
                 {
                     var qrContent = await QRCodeReader.QRCodeRead(image);
                     if (qrContent != null)
                     {
-                        RichText.Text = qrContent;
-                        ToolPalette.Navigate(typeof(WebViewPage),qrContent);
+                        ToolPalette.Navigate(typeof(WebViewPage), qrContent);
                     }
-                }*/
+                }
 
             }
             else
@@ -217,7 +216,6 @@ namespace TumaguroCup_csWin
             }
         }
 
-        private BitmapImage inputImage = null;
 
         private async void ReferenceButton_Click(object sender, RoutedEventArgs e)
         {

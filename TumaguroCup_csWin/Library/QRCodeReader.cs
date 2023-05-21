@@ -22,9 +22,6 @@ namespace TumaguroCup_csWin.Library
                 Options = { TryHarder = true }
             };
 
-            // UWPではSoftwareBitmapかWriteableBitmapを渡す
-            //ZXing.Result result = _reader.Decode(softwareBitmap);
-            // ☟別スレッドでやるときも、作成済みのSoftwareBitmapインスタンスを渡してよい
             byte[] bytedata = await ConvertSoftwareBitmapToByte(softwareBitmap);
 
             Result result = _reader.Decode(bytedata, softwareBitmap.PixelWidth, softwareBitmap.PixelHeight, RGBLuminanceSource.BitmapFormat.Unknown);

@@ -22,7 +22,10 @@
                         RowDefinitions="*">
                         <TextBox
                             Grid.Row="0"
+                            Background="#fff"
+                            MinHeight="450"
                             AcceptsReturn="True"
+                            TextWrapping="Wrap"
                             Height="Auto"
                             />
                     </Grid>

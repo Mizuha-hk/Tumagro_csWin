@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +33,8 @@ namespace TumaguroCup_csWin.Pages
             this.InitializeComponent();
             
             this.UriBox.Text = this.webViewer.Source.ToString();
+
+            webViewer.NavigationStarting += EnsureHttps;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -46,6 +49,19 @@ namespace TumaguroCup_csWin.Pages
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
             this.webViewer.Source = new Uri(this.UriBox.Text);
+        }
+
+        private void EnsureHttps(object sender, CoreWebView2NavigationStartingEventArgs args)
+        {
+            string uri = args.Uri;
+            if(!uri.StartsWith("http://") && !uri.StartsWith("https://"))
+            {
+                args.Cancel = true;
+            }
+            else
+            {
+                UriBox.Text = uri;
+            }
         }
     }
 }
