@@ -13,6 +13,7 @@ namespace TumaguroCup_csWin.Library
 {
     internal class CharacterReplacer
     {
+        //メインウィンドウが呼び出すメソッド
         public static async Task<SoftwareBitmap> ReplaceCharacterAsync(string text,SoftwareBitmap softwareBitmap)
         {
             SoftwareBitmap outSBitmap;
@@ -24,6 +25,7 @@ namespace TumaguroCup_csWin.Library
                     DrawingRectangle(captureMat, rect);
                     DrawingText(captureMat, text, rect);
                 }
+                //Cv2.ImWrite("" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png", captureMat);
                 outSBitmap = await ConvertMatToSoftwareBitmapAsync(captureMat);
             }
             return outSBitmap;
@@ -62,21 +64,22 @@ namespace TumaguroCup_csWin.Library
         }
 
         //画像の文字列の位置を緑の長方形で塗りつぶすメソッド
-        private static void DrawingRectangle(Mat mat, Windows.Foundation.Rect rect)
+        private static void DrawingRectangle(Mat mat, Windows.Foundation.Rect lineRect)
         {
-            Cv2.Rectangle(mat, new OpenCvSharp.Point((int)rect.X, (int)rect.Y), new OpenCvSharp.Point((int)(rect.X + rect.Width), (int)(rect.Y + rect.Height)), new Scalar(0, 255, 0), -1);
+            Cv2.Rectangle(mat, new OpenCvSharp.Point((int)lineRect.X, (int)lineRect.Y), new OpenCvSharp.Point((int)(lineRect.X + lineRect.Width), (int)(lineRect.Y + lineRect.Height)), new Scalar(0, 255, 0), -1);
         }
 
         //画像の文字列の位置に翻訳した文字を重ねるメソッド
-        private static void DrawingText(Mat mat, string text, Windows.Foundation.Rect wordRect)
+        private static void DrawingText(Mat mat, string text, Windows.Foundation.Rect lineRect)
         {
             //テキスト画像用のBitmapを用意
-            var textBitmap = new Bitmap((int)wordRect.Width, (int)wordRect.Y);
+            var textBitmap = new Bitmap((int)lineRect.Width, (int)lineRect.Height);
             Graphics g = Graphics.FromImage(textBitmap);
-            g.DrawString(text, new Font("MS UI Gothic", 20), Brushes.Black, 0, 0);
+            //文字のフォント、サイズ、色を指定
+            g.DrawString(text, new Font("MS UI Gothic", 11), Brushes.Black, 0, 0);
             var img2 = BitmapConverter.ToMat(textBitmap);
             //matの指定した位置にテキスト画像を重ねる
-            mat[(int)wordRect.X, (int)wordRect.Y, (int)wordRect.Width, (int)wordRect.Height] = img2;
+            mat[(int)lineRect.X, (int)(lineRect.X +lineRect.Width), (int)lineRect.Y, (int)(lineRect.Y + lineRect.Height)] = img2;
             textBitmap.Dispose();
             g.Dispose();
             img2.Dispose();
