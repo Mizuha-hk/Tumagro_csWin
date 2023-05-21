@@ -53,11 +53,37 @@ namespace TumaguroCup_csWin
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(Topbar);
 
+            TryAPISetupAsync();
+
             //Add EventHandler
             Clipboard.ContentChanged += new EventHandler<object>(this.Clipboad_Chenged);
+            this.Closed += MainWindow_Closed;
             
 
             ToolPalette.SourcePageType = typeof(Note);
+        }
+
+        private async void TryAPISetupAsync()
+        {
+            try
+            {
+                var flg = Translator.Translator.SetUp();
+                if (flg == false)
+                {
+                    ErrorMessage.Text =
+                        "ご使用中のAPIキーは有効ではありません。";
+                }
+            }
+            catch (System.IO.FileNotFoundException ex)
+            {
+                ErrorMessage.Text =
+                    "APIキーファイルが見つかりませんでした。";
+            }
+        }
+
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            this.settingWindow.Close();
         }
 
         public void LogSelected(string inputText,string outputText)
@@ -348,6 +374,13 @@ namespace TumaguroCup_csWin
                 Task.WaitAll();
                 TranceratedText.Text = result;   
             }
+        }
+
+        private SettingWindow settingWindow = new SettingWindow();
+
+        private void configButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.settingWindow.Activate();
         }
     }
 }
