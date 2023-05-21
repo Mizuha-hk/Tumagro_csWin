@@ -13,13 +13,14 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid
-        RowDefinitions="45,*,10">
+        RowDefinitions="60,*,10">
         <StackPanel
-            Orientation="Horizontal">
+            Grid.Row="0"
+            Orientation="Horizontal"
+            Margin="15,5,15,5">
             <TextBox
                 x:Name="UriBox"
-                Grid.Row="0"
-                Width="230"
+                Width="380"
                 CornerRadius="15"
                 Margin="10"/>
 
@@ -33,7 +34,8 @@
         <WebView2
             x:Name="webViewer"
             Grid.Row="1"
-            Source="https://www.bing.com"/>
+            Source="https://www.bing.com"
+            />
         
     </Grid>
 </Page>
