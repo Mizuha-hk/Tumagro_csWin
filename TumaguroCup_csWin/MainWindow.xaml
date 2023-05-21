@@ -26,7 +26,7 @@
 
             <!--Titele-->
             <TextBlock
-                Text="PicutureApp"
+                Text="TransClip"
                 Margin="5,0,0,0"/>
 
         </StackPanel>
@@ -170,7 +170,7 @@
                             Background="#fff"
                             TextWrapping="Wrap"
                             AcceptsReturn="True"
-                            MaxWidth="600"
+                            MaxWidth="700"
                             MinWidth="400"
                             >
                         </TextBox>
@@ -180,7 +180,7 @@
                         <ScrollViewer
                             Grid.Row="1">
                             <RichTextBlock
-                                MaxWidth="600"
+                                MaxWidth="700"
                                 MinWidth="400"
                                 IsTextSelectionEnabled="True"
                                 FontSize="20"

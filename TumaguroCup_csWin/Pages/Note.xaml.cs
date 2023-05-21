@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation and Contributors.
 // Licensed under the MIT License.
 
+using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -13,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -29,6 +31,27 @@ namespace TumaguroCup_csWin.Pages
         public Note()
         {
             this.InitializeComponent();
+        }
+
+        private void NotePad_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(markdownTogle.SelectedIndex == 1)
+            {
+                MarkdownText.Text = NotePad.Text;
+            }
+        }
+
+        private void markdownTogle_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
+            if(markdownTogle.SelectedIndex == 0)
+            {
+                MarkdownText.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                MarkdownText.Visibility=Visibility.Visible;
+            }
         }
     }
 }

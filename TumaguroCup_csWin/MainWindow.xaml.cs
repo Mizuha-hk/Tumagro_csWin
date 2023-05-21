@@ -185,7 +185,6 @@ namespace TumaguroCup_csWin
                         ToolPalette.Navigate(typeof(WebViewPage), qrContent);
                     }
                 }
-
             }
             else
             {

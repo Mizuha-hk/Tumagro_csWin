@@ -41,20 +41,32 @@ namespace TumaguroCup_csWin.Pages
         {
             if(e.Parameter is string)
             {
-                this.webViewer.Source = new Uri(e.Parameter.ToString());
+                try
+                {
+                    this.webViewer.Source = new Uri(e.Parameter.ToString()); 
+                }
+                catch (Exception ex)
+                {
+                    this.UriBox.Text = e.Parameter.ToString();
+                }
             }
             base.OnNavigatedTo(e);
         }
 
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
-            this.webViewer.Source = new Uri(this.UriBox.Text);
+            if(this.UriBox.Text.StartsWith("http://") 
+                || this.UriBox.Text.StartsWith("https://"))
+            {
+                this.webViewer.Source = new Uri(this.UriBox.Text);
+            }
         }
 
         private void EnsureHttps(object sender, CoreWebView2NavigationStartingEventArgs args)
         {
             string uri = args.Uri;
-            if(!uri.StartsWith("http://") && !uri.StartsWith("https://"))
+            if(!uri.StartsWith("http://") 
+                && !uri.StartsWith("https://"))
             {
                 args.Cancel = true;
             }

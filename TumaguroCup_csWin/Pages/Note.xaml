@@ -8,29 +8,56 @@
     xmlns:local="using:TumaguroCup_csWin.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls.Markdown.Render"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <TabView>
-            <TabView.TabItems>
-                <TabViewItem
-                    Header="Note">
-                    <Grid
-                        RowDefinitions="*">
-                        <TextBox
-                            Grid.Row="0"
-                            Background="#fff"
-                            MinHeight="450"
-                            AcceptsReturn="True"
-                            TextWrapping="Wrap"
-                            Height="Auto"
-                            />
-                    </Grid>
-                </TabViewItem>
-            </TabView.TabItems>
-        </TabView>
+    <Grid
+        x:Name="mainGrid"
+        RowDefinitions="40,*">
+
+        <StackPanel
+            Grid.Row="1"
+            Orientation="Horizontal">
+            
+            <TextBox
+                x:Name="NotePad"
+                Background="#fff"
+                MinHeight="450"
+                AcceptsReturn="True"
+                TextWrapping="Wrap"
+                MinWidth="250"
+                MaxWidth="800"
+                Height="Auto"
+                TextChanged="NotePad_TextChanged"
+                />
+            
+            <controls:MarkdownTextBlock
+                x:Name="MarkdownText"
+                MinWidth="250"
+                Margin="6"
+                >
+            </controls:MarkdownTextBlock>
+        </StackPanel>
+        
+        <StackPanel
+            Grid.Row="0"
+            Orientation="Horizontal"
+            Background="#80DEEA">
+            
+            <ComboBox
+                x:Name="markdownTogle"
+                SelectedIndex="0"
+                Margin="5"
+                SelectionChanged="markdownTogle_SelectionChanged"
+                >
+                <TextBlock
+                    Text="テキストファイル"/>
+                <TextBlock
+                    Text="マークダウン"/>
+            </ComboBox>
+            
+        </StackPanel>
     </Grid>
 </Page>
