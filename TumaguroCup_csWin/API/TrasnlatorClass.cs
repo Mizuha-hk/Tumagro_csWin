@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Windows.Web.Http;
 
 namespace Translator
 {
@@ -12,12 +13,13 @@ namespace Translator
 
         public static bool SetUp()
         {
-            try
+            apiKey = ReadApiKey("./temp.json");
+
+            if (CallDeeplAPI.CheckConnect(apiKey).Result)
             {
-                apiKey = ReadApiKey("./temp.json");
                 return true;
             }
-            catch
+            else
             {
                 return false;
             }
@@ -61,7 +63,7 @@ namespace Translator
             JsonElement firstTranslationElement = translationsElement[0];
             string text = firstTranslationElement.GetProperty("text").GetString();
 
-            if(text == null)
+            if (text == null)
             {
                 return "Error: could't translate.";
             }
@@ -74,18 +76,17 @@ namespace Translator
 
     static class CallDeeplAPI
     {
-        static HttpClient httpClient = new HttpClient();
-        static public async Task<HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
+        static System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
+        static public async Task<System.Net.Http.HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
         {
             var multiForm = new MultipartFormDataContent();
 
-            
             string apiUrl = "https://api-free.deepl.com/v2/translate";
 
             multiForm.Add(new StringContent(apiKey), "auth_key");
             multiForm.Add(new StringContent(sentence), "text");
             multiForm.Add(new StringContent(target_lang), "target_lang");
-            if(source_lang != "")
+            if (source_lang != "")
             {
                 multiForm.Add(new StringContent(source_lang), "source_lang");
             }
@@ -93,7 +94,28 @@ namespace Translator
             return await httpClient.PostAsync(apiUrl, multiForm);
         }
 
-        
+        public static async Task<bool> CheckConnect(string apiKey)
+        {
+            Console.WriteLine(apiKey);
+            var multiForm = new MultipartFormDataContent();
+
+            string apiUrl = "https://api-free.deepl.com/v2/translate";
+
+            multiForm.Add(new StringContent(apiKey), "auth_key");
+            multiForm.Add(new StringContent(""), "text");
+            multiForm.Add(new StringContent(Language.Language.JA), "target_lang");
+
+            var temp = await httpClient.PostAsync(apiUrl, multiForm);
+            if (!temp.IsSuccessStatusCode)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
     }
 }
 
