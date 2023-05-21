@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.IO;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -6,6 +8,37 @@ namespace Translator
 {
     static class Translator
     {
+        private static string apiKey = "";
+
+        public static bool SetUp()
+        {
+            try
+            {
+                apiKey = ReadApiKey("./temp.json");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        private static string ReadApiKey(string _filePath)
+        {
+            string json = File.ReadAllText(_filePath);
+
+            JsonDocument jsonDocument = JsonDocument.Parse(json);
+            JsonElement rootElement = jsonDocument.RootElement;
+            string? apiKey = rootElement.GetProperty("APIKEY").GetString();
+            if (apiKey == null)
+            {
+                return "";
+            }
+            else
+            {
+                return apiKey;
+            }
+        }
         /// <summary>
         /// 言語を翻訳します。
         /// 第三引数の原文の言語は省略可能です。
@@ -16,7 +49,7 @@ namespace Translator
         /// <returns>翻訳文</returns>
         static public async Task<string> Translate(string target_lang, string sentence, string source_lang = "")
         {
-            var result = await CallDeeplAPI.Post(target_lang, sentence, source_lang);
+            var result = await CallDeeplAPI.Post(target_lang, sentence, source_lang, apiKey);
             string resultStr = result.Content.ReadAsStringAsync().Result;
 
             // JSON文字列をパースしてJsonDocumentオブジェクトを作成
@@ -42,14 +75,14 @@ namespace Translator
     static class CallDeeplAPI
     {
         static HttpClient httpClient = new HttpClient();
-        static public async Task<HttpResponseMessage> Post(string target_lang, string sentence, string source_lang = "")
+        static public async Task<HttpResponseMessage> Post(string target_lang, string sentence, string source_lang = "", string apiKey)
         {
             var multiForm = new MultipartFormDataContent();
 
             
             string apiUrl = "https://api-free.deepl.com/v2/translate";
 
-            multiForm.Add(new StringContent("5ec95d97-cd5c-222b-8684-17eefdf88e7c:fx"), "auth_key");
+            multiForm.Add(new StringContent(apiKey), "auth_key");
             multiForm.Add(new StringContent(sentence), "text");
             multiForm.Add(new StringContent(target_lang), "target_lang");
             if(source_lang != "")
