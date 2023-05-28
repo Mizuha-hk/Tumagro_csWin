@@ -63,7 +63,7 @@ namespace TumaguroCup_csWin
             ToolPalette.SourcePageType = typeof(Note);
         }
 
-        private async void TryAPISetupAsync()
+        private void TryAPISetupAsync()
         {
             try
             {
@@ -190,6 +190,8 @@ namespace TumaguroCup_csWin
                     }
 
                     RichText.Text = text;
+
+                    image = await CharacterReplacer.ReplaceCharacterAsync(text, image);
                 }
                 else if (ModeChange.SelectedIndex == 3) 
                 {
