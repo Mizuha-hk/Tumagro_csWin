@@ -19,11 +19,11 @@ namespace TumaguroCup_csWin.Library
   
     internal class CharacterRecognizer
     {
-        private static List<string> textList = new List<string>();
-        private static List<int> xList = new List<int>();
-        private static List<int> yList = new List<int>();
-        private static List<int> widthList = new List<int>();
-        private static List<int> heightList = new List<int>();
+        private static List<string> textList;
+        private static List<int> xList;
+        private static List<int> yList;
+        private static List<int> widthList;
+        private static List<int> heightList;
         public static async Task<string> RunOcr(SoftwareBitmap sbitmap, string lang)
         {
             //OCRを実行する
@@ -32,6 +32,11 @@ namespace TumaguroCup_csWin.Library
             {
                 string str = "";
                 var result = await engine.RecognizeAsync(sbitmap);
+                textList = new List<string>();
+                xList = new List<int>();
+                yList = new List<int>();
+                widthList = new List<int>();
+                heightList = new List<int>();
                 foreach (var line in result.Lines)
                 {
                     str += line.Text + "\n";

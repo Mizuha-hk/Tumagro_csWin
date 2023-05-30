@@ -191,7 +191,13 @@ namespace TumaguroCup_csWin
 
                     RichText.Text = text;
 
-                    image = await CharacterReplacer.ReplaceCharacterAsync(text, image);
+                    SoftwareBitmap resImg = await CharacterReplacer.ReplaceCharacterAsync(text, image);
+                    if(resImg != null)
+                    {
+                        SoftwareBitmapSource resImgSource = new SoftwareBitmapSource();
+                        await resImgSource.SetBitmapAsync(resImg);
+                        InputPictureView.Source = resImgSource;
+                    }
                 }
                 else if (ModeChange.SelectedIndex == 3) 
                 {
