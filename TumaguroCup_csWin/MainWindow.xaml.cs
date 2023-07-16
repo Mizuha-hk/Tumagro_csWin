@@ -53,12 +53,14 @@ namespace TumaguroCup_csWin
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(Topbar);
 
-            TryAPISetupAsync();
+            //TryAPISetupAsync();
 
-            //Add EventHandler
+            #region AddEventHandler
+
             Clipboard.ContentChanged += new EventHandler<object>(this.Clipboad_Chenged);
             this.Closed += MainWindow_Closed;
             
+            #endregion
 
             ToolPalette.SourcePageType = typeof(Note);
         }
@@ -124,6 +126,7 @@ namespace TumaguroCup_csWin
         }
 
         //EventHandler
+        #region EventHandler
         private async void Clipboad_Chenged(object sender, object e)
         {
             SoftwareBitmap image = await GetClipboardImage();
@@ -376,11 +379,13 @@ namespace TumaguroCup_csWin
             }
         }
 
-        private SettingWindow settingWindow = new SettingWindow();
+        private SettingWindow settingWindow = new();
 
         private void configButton_Click(object sender, RoutedEventArgs e)
         {
             this.settingWindow.Activate();
         }
+
+        #endregion
     }
 }

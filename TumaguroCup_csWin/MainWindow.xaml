@@ -129,8 +129,18 @@
                 VerticalScrollBarVisibility="Disabled"
                 HorizontalScrollBarVisibility="Visible">
 
-                <Grid
-                    ColumnDefinitions="200,*,Auto,350">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                            Width="200"/>
+                        <ColumnDefinition
+                            Width="*"/>
+                        <ColumnDefinition
+                            Width="Auto"/>
+                        <ColumnDefinition
+                            Width="350"
+                            MaxWidth="600"/>
+                    </Grid.ColumnDefinitions>
 
                     <!--PictureBar-->
                     <StackPanel
@@ -220,7 +230,8 @@
                     <!--ToolPalette-->
                     <controls1:GridSplitter
                         Grid.Column="2"
-                        Background="#B2EBF2">
+                        Background="#B2EBF2"
+                        ResizeBehavior="BasedOnAlignment">
                     </controls1:GridSplitter>
 
                     <Frame

@@ -27,15 +27,15 @@
                 MinHeight="450"
                 AcceptsReturn="True"
                 TextWrapping="Wrap"
-                MinWidth="250"
-                MaxWidth="800"
+                MinWidth="300"
+                MaxWidth="600"
                 Height="Auto"
                 TextChanged="NotePad_TextChanged"
                 />
             
             <controls:MarkdownTextBlock
                 x:Name="MarkdownText"
-                MinWidth="250"
+                MinWidth="300"
                 Margin="6"
                 >
             </controls:MarkdownTextBlock>

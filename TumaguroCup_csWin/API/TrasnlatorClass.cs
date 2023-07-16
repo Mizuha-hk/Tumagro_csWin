@@ -9,7 +9,7 @@ namespace Translator
 {
     static class Translator
     {
-        private static string apiKey = "";
+        private static string apiKey = "5ec95d97-cd5c-222b-8684-17eefdf88e7c:fx";
 
         public static bool SetUp()
         {
