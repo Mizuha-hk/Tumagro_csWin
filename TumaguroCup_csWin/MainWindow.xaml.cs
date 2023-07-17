@@ -26,7 +26,6 @@ using Windows.Storage.Streams;
 
 using Translator;
 using Language;
-using TumaguroCup_csWin.Library;
 using Windows.Globalization;
 using ZXing;
 using CommunityToolkit.WinUI.UI.Triggers;
@@ -35,6 +34,8 @@ using System.IO.Compression;
 using Windows.Storage;
 using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
+
+using TumaguroCup_csWin.Library;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -46,6 +47,17 @@ namespace TumaguroCup_csWin
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        #region paramater
+
+        private string TrancelatingText { get; set; } = "";
+        private string TrancelatedText { get; set; } = "";
+        private bool IsDetected { get; set; } = false;
+        private SoftwareBitmap Image { get; set; }
+        private SoftwareBitmapSource ImageSource { get; set; } = new();
+
+        private SettingWindow SettingWindow { get; } = new();
+
+        #endregion
 
         public MainWindow()
         {
@@ -63,6 +75,13 @@ namespace TumaguroCup_csWin
             #endregion
 
             ToolPalette.SourcePageType = typeof(Note);
+        }
+
+        private void Update()
+        {
+            TrancelatingTextBox.Text = TrancelatingText;
+            TrancelatedTextBox.Text = TrancelatedText;
+            InputPictureView.Source = ImageSource;
         }
 
         private async void TryAPISetupAsync()
@@ -83,15 +102,10 @@ namespace TumaguroCup_csWin
             }
         }
 
-        private void MainWindow_Closed(object sender, WindowEventArgs args)
-        {
-            this.settingWindow.Close();
-        }
-
         public void LogSelected(string inputText,string outputText)
         {
-            RichText.Text = inputText;
-            TranceratedText.Text = outputText;
+            TrancelatingTextBox.Text = inputText;
+            TrancelatedTextBox.Text = outputText;
         }
 
         //GetContentFromClipBoad
@@ -102,13 +116,13 @@ namespace TumaguroCup_csWin
             if (dataPackageView.Contains(StandardDataFormats.Bitmap))
             {
                 RandomAccessStreamReference imageStreamRef = await dataPackageView.GetBitmapAsync();
-                using (IRandomAccessStreamWithContentType streamWithContent = await imageStreamRef.OpenReadAsync())
-                {
-                    // SoftwareBitmapに変換する
-                    BitmapDecoder decoder = await BitmapDecoder.CreateAsync(streamWithContent);
-                    SoftwareBitmap softwareBitmap = await decoder.GetSoftwareBitmapAsync();
-                    return softwareBitmap;
-                }
+
+                using IRandomAccessStreamWithContentType streamWithContent = await imageStreamRef.OpenReadAsync();
+                // SoftwareBitmapに変換する
+                BitmapDecoder decoder = await BitmapDecoder.CreateAsync(streamWithContent);
+                SoftwareBitmap softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+                return softwareBitmap;
             }
             return null;
         }
@@ -125,90 +139,79 @@ namespace TumaguroCup_csWin
             return null;
         }
 
-        //EventHandler
-        #region EventHandler
-        private async void Clipboad_Chenged(object sender, object e)
+        private async Task ExcuteOcrAsync()
         {
-            SoftwareBitmap image = await GetClipboardImage();
-            if(image != null)
+            await ImageSource.SetBitmapAsync(Image);
+
+            if(ModeChange.SelectedIndex == 0 || ModeChange.SelectedIndex == 2)
             {
-                if (image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
-                    image.BitmapAlphaMode == BitmapAlphaMode.Straight)
-                {
-                    image = SoftwareBitmap.Convert(image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-                }
+                TrancelatingText = await CharacterRecognizer.RunOcr(Image, Library.Language.EN);
+                Task.WaitAll();
+            }
+            else if(ModeChange.SelectedIndex == 1 || ModeChange.SelectedIndex == 3)
+            {
+                TrancelatingText = await CharacterRecognizer.RunOcr(Image, Library.Language.JP);
+                Task.WaitAll();
+            }
 
-                var source = new SoftwareBitmapSource();
-                await source.SetBitmapAsync(image);
+            if(string.IsNullOrEmpty(TrancelatingText))
+            {
+                TrancelatingText = "文字列が検出されませんでした.";
+                TrancelatedText = string.Empty;
+                IsDetected = false;
+            }
+            else
+            {
+                IsDetected = true;
+            }
+        }
 
-                InputPictureView.Source = source;
+        private async Task TrancelateAsync()
+        {
+            if (IsDetected == true)
+            {
+                string language;
 
                 if(ModeChange.SelectedIndex == 0)
                 {
-                    //OCR
-                    var text = await CharacterRecognizer.RunOcr(image,TumaguroCup_csWin.Library.Language.EN);
-                    Task.WaitAll();
-
-                    if(text == null)
-                    {
-                        text = "文字が検出されませんでした";
-                    }
-                    RichText.Text = text;
-                    if(text != null)
-                    {
-                        //DeepL
-                        var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
-                        Task.WaitAll();
-                        TranceratedText.Text = result;
-                    }
+                    language = Language.Language.JA;
                 }
                 else if(ModeChange.SelectedIndex == 1)
                 {
-                    //OCR
-                    var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
-                    Task.WaitAll();
-
-                    if(text == null)
-                    {
-                        text = "文字が検出されませんでした。";
-                    }
-                    
-                    RichText.Text = text;
-                    if (text != null)
-                    {
-                        //DeepL
-                        var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
-                        TranceratedText.Text = result;
-                    }           
+                    language = Language.Language.EN;
                 }
-                else if (ModeChange.SelectedIndex == 2)
+                else
                 {
-                    //OCR
-                    var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.JP);
-                    Task.WaitAll();
-
-                    if (text == null)
-                    {
-                        text = "文字が検出されませんでした。";
-                    }
-
-                    RichText.Text = text;
+                    return;
                 }
-                else if (ModeChange.SelectedIndex == 3) 
+
+                TrancelatedText = await Translator.Translator.Translate(language, TrancelatingText);
+                Task.WaitAll();
+                IsDetected = false;
+            }
+        }
+
+        //EventHandler
+        #region EventHandler
+
+        private async void Clipboad_Chenged(object sender, object e)
+        {
+            Image = await GetClipboardImage();
+            if(Image != null)
+            {
+                if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
+                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
                 {
-                    //OCR
-                    var text = await CharacterRecognizer.RunOcr(image, TumaguroCup_csWin.Library.Language.EN);
-                    Task.WaitAll();
-                    if (text == null)
-                    {
-                        text = "文字が検出されませんでした。";
-                    }
-                    RichText.Text = text;
+                    Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
+
+                await ExcuteOcrAsync();
+                await TrancelateAsync();               
+                Update();
 
                 if (ExtendOptionMode.SelectedIndex == 1)
                 {
-                    var qrContent = await QRCodeReader.QRCodeRead(image);
+                    var qrContent = await QRCodeReader.QRCodeRead(Image);
                     if (qrContent != null)
                     {
                         ToolPalette.Navigate(typeof(WebViewPage), qrContent);
@@ -217,29 +220,13 @@ namespace TumaguroCup_csWin
             }
             else
             {
-                var text = await GetClipboadText();
+                TrancelatingText = await GetClipboadText();
 
-                if(text != null)
+                if(TrancelatingText != null)
                 {
-                    RichText.Text = text;
-
-                    if(ModeChange.SelectedIndex == 2 || ModeChange.SelectedIndex == 3)
-                    {
-                        return;
-                    }
-
-                    if (ModeChange.SelectedIndex == 0)
-                    {
-                        var result = await Translator.Translator.Translate(Language.Language.JA, text);
-                        Task.WaitAll();
-                        TranceratedText.Text = result;
-                    }
-                    else if(ModeChange.SelectedIndex == 1)
-                    {
-                        var result = await Translator.Translator.Translate(Language.Language.EN, text);
-                        Task.WaitAll();
-                        TranceratedText.Text = result;
-                    }
+                    IsDetected = true;
+                    await TrancelateAsync();
+                    Update();
                 }
             }
         }
@@ -274,7 +261,6 @@ namespace TumaguroCup_csWin
 
         private async void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            SoftwareBitmap softwareBitmap;
             if(string.IsNullOrEmpty(FileSource.Text)) { return; }
 
             StorageFile inputFile = await StorageFile.GetFileFromPathAsync(FileSource.Text);
@@ -282,71 +268,18 @@ namespace TumaguroCup_csWin
             using (IRandomAccessStream stream = await inputFile.OpenAsync(FileAccessMode.Read))
             {
                 BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
-                softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+                Image = await decoder.GetSoftwareBitmapAsync();
             }
 
-            if (ModeChange.SelectedIndex == 0)
+            if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
+                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
             {
-                //OCR
-                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.EN);
-                Task.WaitAll();
-
-                if (text == null)
-                {
-                    text = "文字が検出されませんでした";
-                }
-                RichText.Text = text;
-                if (text != null)
-                {
-                    //DeepL
-                    var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
-                    Task.WaitAll();
-                    TranceratedText.Text = result;
-                }
+                Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             }
-            else if (ModeChange.SelectedIndex == 1)
-            {
-                //OCR
-                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.JP);
-                Task.WaitAll();
 
-                if (text == null)
-                {
-                    text = "文字が検出されませんでした。";
-                }
-
-                RichText.Text = text;
-                if (text != null)
-                {
-                    //DeepL
-                    var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
-                    TranceratedText.Text = result;
-                }
-            }
-            else if (ModeChange.SelectedIndex == 2)
-            {
-                //OCR
-                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.JP);
-                Task.WaitAll();
-
-                if (text == null)
-                {
-                    text = "文字が検出されませんでした。";
-                }
-
-                RichText.Text = text;
-            }
-            else if (ModeChange.SelectedIndex == 3)
-            {
-                //OCR
-                var text = await CharacterRecognizer.RunOcr(softwareBitmap, TumaguroCup_csWin.Library.Language.EN);
-                Task.WaitAll();
-                if (text == null)
-                {
-                    text = "文字が検出されませんでした。";
-                }
-                RichText.Text = text;
-            }
+            await ExcuteOcrAsync();
+            await TrancelateAsync();            
+            Update();
         }
 
         private void LogButton_Click(object sender, RoutedEventArgs e)
@@ -354,36 +287,30 @@ namespace TumaguroCup_csWin
             ToolPalette.Navigate(typeof(Note));
         }
 
-        private void webViewButton_Click(object sender, RoutedEventArgs e)
+        private void WebViewButton_Click(object sender, RoutedEventArgs e)
         {
             ToolPalette.Navigate(typeof(WebViewPage));
         }
 
         private async void TracelationButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ModeChange.SelectedIndex == 0)
+            TrancelatingText = TrancelatingTextBox.Text;
+            if(string.IsNullOrEmpty(TrancelatingText))
             {
-                if(string.IsNullOrWhiteSpace(RichText.Text)) { return; }
-                //DeepL
-                var result = await Translator.Translator.Translate(Language.Language.JA, RichText.Text);
-                Task.WaitAll();
-                TranceratedText.Text = result;                
-            }
-            else if (ModeChange.SelectedIndex == 1)
-            {
-                if(string.IsNullOrEmpty(RichText.Text)) { return; }
-                //DeepL
-                var result = await Translator.Translator.Translate(Language.Language.EN, RichText.Text);
-                Task.WaitAll();
-                TranceratedText.Text = result;   
+                IsDetected = true;
+                await TrancelateAsync();
+                Update();
             }
         }
 
-        private SettingWindow settingWindow = new();
-
-        private void configButton_Click(object sender, RoutedEventArgs e)
+        private void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            this.settingWindow.Activate();
+            this.SettingWindow.Activate();
+        }
+
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            this.SettingWindow.Close();
         }
 
         #endregion
