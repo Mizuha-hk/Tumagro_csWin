@@ -271,6 +271,12 @@ namespace TumaguroCup_csWin
                 Image = await decoder.GetSoftwareBitmapAsync();
             }
 
+            if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
+                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
+            {
+                Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+            }
+
             await ExcuteOcrAsync();
             await TrancelateAsync();            
             Update();
