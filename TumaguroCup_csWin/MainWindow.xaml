@@ -65,9 +65,9 @@
                 <TextBlock
                     Text="日本語->英語"/>
                 <TextBlock
-                    Text="翻訳無し(日本語)"/>
-                <TextBlock
                     Text="翻訳無し(英語)"/>
+                <TextBlock
+                    Text="翻訳無し(日本語)"/>
             </ComboBox>
 
             <!--ExtendOption-->
@@ -116,7 +116,7 @@
                 Content="接続"
                 HorizontalAlignment="Right"
                 Margin="5"
-                Click="configButton_Click"/>
+                Click="ConfigButton_Click"/>
         </StackPanel>
 
         <!--MainContents-->
@@ -193,7 +193,7 @@
                         BorderThickness="0,0,1,0">
 
                         <TextBox
-                            x:Name="RichText"
+                            x:Name="TrancelatingTextBox"
                             Grid.Row="0"
                             Foreground="#000"
                             FontSize="20"
@@ -221,7 +221,7 @@
                                     Margin="10,0,10,0"
                                     >
                                     <Run
-                                        x:Name="TranceratedText"/>
+                                        x:Name="TrancelatedTextBox"/>
                                 </Paragraph>
                             </RichTextBlock>
                         </ScrollViewer>
@@ -264,8 +264,8 @@
                         Source="../Assets/Note.jpg"/>
                 </Button>
                 <Button
-                    x:Name="webViewButton"
-                    Click="webViewButton_Click"
+                    x:Name="WebViewButton"
+                    Click="WebViewButton_Click"
                     Width="48"
                     Height="48"
                     HorizontalAlignment="Center">
