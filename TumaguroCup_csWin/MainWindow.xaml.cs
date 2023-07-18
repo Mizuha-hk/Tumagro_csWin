@@ -30,10 +30,10 @@ namespace TumaguroCup_csWin
         private string? TrancelatingText { get; set; } = "";
         private string? TrancelatedText { get; set; } = "";
         private bool IsDetected { get; set; } = false;
-        private SoftwareBitmap Image { get; set; }
+        private SoftwareBitmap? Image { get; set; }
         private SoftwareBitmapSource ImageSource { get; set; } = new();
 
-        private SettingWindow SettingWindow { get; } = new();
+        private SettingWindow SettingWindow { get; set; } 
 #nullable disable
 
         #endregion
@@ -156,6 +156,18 @@ namespace TumaguroCup_csWin
             }
         }
 
+        private void ConvertSoftwareBitmap()
+        {
+            if(Image != null)
+            {
+                if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
+                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
+                {
+                    Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                }
+            }
+        }
+
         //EventHandler
         #region EventHandler
 
@@ -164,16 +176,11 @@ namespace TumaguroCup_csWin
             Image = await GetClipboardImage();
             if(Image != null)
             {
-                if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
-                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
-                {
-                    Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-                }
-
+                ConvertSoftwareBitmap();
+                await ReadQRAsync();
                 await ExcuteOcrAsync();
                 await TrancelateAsync();
                 Update();
-                await ReadQRAsync();
             }
             else
             {
@@ -192,7 +199,7 @@ namespace TumaguroCup_csWin
         {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
 
-            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            var picker = new FileOpenPicker
             {
                 ViewMode = PickerViewMode.Thumbnail,
                 SuggestedStartLocation = PickerLocationId.PicturesLibrary
@@ -227,16 +234,11 @@ namespace TumaguroCup_csWin
                 Image = await decoder.GetSoftwareBitmapAsync();
             }
 
-            if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
-                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
-            {
-                Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-            }
-
+            ConvertSoftwareBitmap();
+            await ReadQRAsync();
             await ExcuteOcrAsync();
             await TrancelateAsync();
             Update();
-            await ReadQRAsync();
         }
 
         private void LogButton_Click(object sender, RoutedEventArgs e)
@@ -262,12 +264,16 @@ namespace TumaguroCup_csWin
 
         private void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            this.SettingWindow.Activate();
+            SettingWindow = new();
+            SettingWindow.Activate();
         }
 
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
-            this.SettingWindow.Close();
+            if (SettingWindow != null)
+            {
+                SettingWindow.Close();
+            }
         }
 
         #endregion
