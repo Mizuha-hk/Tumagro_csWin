@@ -49,13 +49,15 @@ namespace TumaguroCup_csWin
     {
         #region paramater
 
-        private string TrancelatingText { get; set; } = "";
-        private string TrancelatedText { get; set; } = "";
+#nullable enable
+        private string? TrancelatingText { get; set; } = "";
+        private string? TrancelatedText { get; set; } = "";
         private bool IsDetected { get; set; } = false;
         private SoftwareBitmap Image { get; set; }
         private SoftwareBitmapSource ImageSource { get; set; } = new();
 
         private SettingWindow SettingWindow { get; } = new();
+#nullable disable
 
         #endregion
 
@@ -165,6 +167,18 @@ namespace TumaguroCup_csWin
             }
         }
 
+        private async Task ReadQRAsync()
+        {
+            if (ExtendOptionMode.SelectedIndex == 1)
+            {
+                var qrContent = await QRCodeReader.QRCodeRead(Image);
+                if (qrContent != null)
+                {
+                    ToolPalette.Navigate(typeof(WebViewPage), qrContent);
+                }
+            }
+        }
+
         //EventHandler
         #region EventHandler
 
@@ -180,17 +194,9 @@ namespace TumaguroCup_csWin
                 }
 
                 await ExcuteOcrAsync();
-                await TrancelateAsync();               
+                await TrancelateAsync();
                 Update();
-
-                if (ExtendOptionMode.SelectedIndex == 1)
-                {
-                    var qrContent = await QRCodeReader.QRCodeRead(Image);
-                    if (qrContent != null)
-                    {
-                        ToolPalette.Navigate(typeof(WebViewPage), qrContent);
-                    }
-                }
+                await ReadQRAsync();
             }
             else
             {
@@ -251,8 +257,9 @@ namespace TumaguroCup_csWin
             }
 
             await ExcuteOcrAsync();
-            await TrancelateAsync();            
+            await TrancelateAsync();
             Update();
+            await ReadQRAsync();
         }
 
         private void LogButton_Click(object sender, RoutedEventArgs e)
@@ -268,7 +275,7 @@ namespace TumaguroCup_csWin
         private async void TracelationButton_Click(object sender, RoutedEventArgs e)
         {
             TrancelatingText = TrancelatingTextBox.Text;
-            if(string.IsNullOrEmpty(TrancelatingText))
+            if(!string.IsNullOrEmpty(TrancelatingText))
             {
                 IsDetected = true;
                 await TrancelateAsync();
