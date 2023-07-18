@@ -16,7 +16,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using TumaguroCup_csWin.Pages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -35,6 +34,7 @@ using Windows.Storage;
 using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
 
+using TumaguroCup_csWin.Pages;
 using TumaguroCup_csWin.Library;
 
 // To learn more about WinUI, the WinUI project structure,
