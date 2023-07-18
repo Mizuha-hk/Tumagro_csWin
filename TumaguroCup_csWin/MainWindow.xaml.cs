@@ -65,8 +65,6 @@ namespace TumaguroCup_csWin
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(Topbar);
 
-            //TryAPISetupAsync();
-
             #region AddEventHandler
 
             Clipboard.ContentChanged += new EventHandler<object>(this.Clipboad_Chenged);
@@ -82,30 +80,6 @@ namespace TumaguroCup_csWin
             TrancelatingTextBox.Text = TrancelatingText;
             TrancelatedTextBox.Text = TrancelatedText;
             InputPictureView.Source = ImageSource;
-        }
-
-        private async void TryAPISetupAsync()
-        {
-            try
-            {
-                var flg = Translator.Translator.SetUp();
-                if (flg == false)
-                {
-                    ErrorMessage.Text =
-                        "ご使用中のAPIキーは有効ではありません。";
-                }
-            }
-            catch (System.IO.FileNotFoundException ex)
-            {
-                ErrorMessage.Text =
-                    "APIキーファイルが見つかりませんでした。";
-            }
-        }
-
-        public void LogSelected(string inputText,string outputText)
-        {
-            TrancelatingTextBox.Text = inputText;
-            TrancelatedTextBox.Text = outputText;
         }
 
         //GetContentFromClipBoad
@@ -230,7 +204,6 @@ namespace TumaguroCup_csWin
                 }
             }
         }
-
 
         private async void ReferenceButton_Click(object sender, RoutedEventArgs e)
         {
