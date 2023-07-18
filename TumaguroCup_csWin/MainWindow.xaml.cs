@@ -1,40 +1,17 @@
 // Copyright (c) Microsoft Corporation and Contributors.
 // Licensed under the MIT License.
 
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using TumaguroCup_csWin.Pages;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
-
-using Translator;
-using Language;
-using Windows.Globalization;
-using ZXing;
-using CommunityToolkit.WinUI.UI.Triggers;
-using System.Drawing;
-using System.IO.Compression;
 using Windows.Storage;
-using System.Runtime.InteropServices;
-using static System.Net.Mime.MediaTypeNames;
 
+using TumaguroCup_csWin.Pages;
 using TumaguroCup_csWin.Library;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -49,13 +26,15 @@ namespace TumaguroCup_csWin
     {
         #region paramater
 
-        private string TrancelatingText { get; set; } = "";
-        private string TrancelatedText { get; set; } = "";
+#nullable enable
+        private string? TrancelatingText { get; set; } = "";
+        private string? TrancelatedText { get; set; } = "";
         private bool IsDetected { get; set; } = false;
-        private SoftwareBitmap Image { get; set; }
+        private SoftwareBitmap? Image { get; set; }
         private SoftwareBitmapSource ImageSource { get; set; } = new();
 
-        private SettingWindow SettingWindow { get; } = new();
+        private SettingWindow SettingWindow { get; set; } 
+#nullable disable
 
         #endregion
 
@@ -64,8 +43,6 @@ namespace TumaguroCup_csWin
             this.InitializeComponent();
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(Topbar);
-
-            //TryAPISetupAsync();
 
             #region AddEventHandler
 
@@ -82,30 +59,6 @@ namespace TumaguroCup_csWin
             TrancelatingTextBox.Text = TrancelatingText;
             TrancelatedTextBox.Text = TrancelatedText;
             InputPictureView.Source = ImageSource;
-        }
-
-        private async void TryAPISetupAsync()
-        {
-            try
-            {
-                var flg = Translator.Translator.SetUp();
-                if (flg == false)
-                {
-                    ErrorMessage.Text =
-                        "ご使用中のAPIキーは有効ではありません。";
-                }
-            }
-            catch (System.IO.FileNotFoundException ex)
-            {
-                ErrorMessage.Text =
-                    "APIキーファイルが見つかりませんでした。";
-            }
-        }
-
-        public void LogSelected(string inputText,string outputText)
-        {
-            TrancelatingTextBox.Text = inputText;
-            TrancelatedTextBox.Text = outputText;
         }
 
         //GetContentFromClipBoad
@@ -191,6 +144,30 @@ namespace TumaguroCup_csWin
             }
         }
 
+        private async Task ReadQRAsync()
+        {
+            if (ExtendOptionMode.SelectedIndex == 1)
+            {
+                var qrContent = await QRCodeReader.QRCodeRead(Image);
+                if (qrContent != null)
+                {
+                    ToolPalette.Navigate(typeof(WebViewPage), qrContent);
+                }
+            }
+        }
+
+        private void ConvertSoftwareBitmap()
+        {
+            if(Image != null)
+            {
+                if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
+                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
+                {
+                    Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                }
+            }
+        }
+
         //EventHandler
         #region EventHandler
 
@@ -199,24 +176,11 @@ namespace TumaguroCup_csWin
             Image = await GetClipboardImage();
             if(Image != null)
             {
-                if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
-                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
-                {
-                    Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-                }
-
+                ConvertSoftwareBitmap();
+                await ReadQRAsync();
                 await ExcuteOcrAsync();
-                await TrancelateAsync();               
+                await TrancelateAsync();
                 Update();
-
-                if (ExtendOptionMode.SelectedIndex == 1)
-                {
-                    var qrContent = await QRCodeReader.QRCodeRead(Image);
-                    if (qrContent != null)
-                    {
-                        ToolPalette.Navigate(typeof(WebViewPage), qrContent);
-                    }
-                }
             }
             else
             {
@@ -231,12 +195,11 @@ namespace TumaguroCup_csWin
             }
         }
 
-
         private async void ReferenceButton_Click(object sender, RoutedEventArgs e)
         {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
 
-            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            var picker = new FileOpenPicker
             {
                 ViewMode = PickerViewMode.Thumbnail,
                 SuggestedStartLocation = PickerLocationId.PicturesLibrary
@@ -271,14 +234,10 @@ namespace TumaguroCup_csWin
                 Image = await decoder.GetSoftwareBitmapAsync();
             }
 
-            if (Image.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
-                    Image.BitmapAlphaMode == BitmapAlphaMode.Straight)
-            {
-                Image = SoftwareBitmap.Convert(Image, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-            }
-
+            ConvertSoftwareBitmap();
+            await ReadQRAsync();
             await ExcuteOcrAsync();
-            await TrancelateAsync();            
+            await TrancelateAsync();
             Update();
         }
 
@@ -295,7 +254,7 @@ namespace TumaguroCup_csWin
         private async void TracelationButton_Click(object sender, RoutedEventArgs e)
         {
             TrancelatingText = TrancelatingTextBox.Text;
-            if(string.IsNullOrEmpty(TrancelatingText))
+            if(!string.IsNullOrEmpty(TrancelatingText))
             {
                 IsDetected = true;
                 await TrancelateAsync();
@@ -305,12 +264,16 @@ namespace TumaguroCup_csWin
 
         private void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            this.SettingWindow.Activate();
+            SettingWindow = new();
+            SettingWindow.Activate();
         }
 
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
-            this.SettingWindow.Close();
+            if (SettingWindow != null)
+            {
+                SettingWindow.Close();
+            }
         }
 
         #endregion
