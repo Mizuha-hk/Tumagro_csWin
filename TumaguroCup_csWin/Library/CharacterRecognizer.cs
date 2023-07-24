@@ -12,15 +12,14 @@ namespace TumaguroCup_csWin.Library
 {
     public readonly struct Language
     {
-        public static string JP = "ja-JP";
-        public static string EN = "en-US";
+        public const string JP = "ja-JP";
+        public const string EN = "en-US";
     }
   
     internal class CharacterRecognizer
     {      
         public static async Task<string> RunOcr(SoftwareBitmap sbitmap, string lang)
         {                     
-            //OCRを実行する
             OcrEngine engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language(lang));
             if(engine != null ) 
             {
@@ -28,14 +27,7 @@ namespace TumaguroCup_csWin.Library
                 var result = await engine.RecognizeAsync(sbitmap);
                 foreach( var line in result.Lines )
                 {
-                    str += line.Text + "\n";
-                    /*
-                    foreach( var word in line.Words )
-                    {
-                        double posX = word.BoundingRect.X;
-                        double posY = word.BoundingRect.Y;
-                    }
-                    */
+                    str += line.Text + "\n";                    
                 }
                 return str;
             }
