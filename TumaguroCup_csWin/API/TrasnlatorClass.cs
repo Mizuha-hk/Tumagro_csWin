@@ -4,7 +4,6 @@ using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Web.Http;
 
 namespace Translator
 {
@@ -57,7 +56,7 @@ namespace Translator
 
     static class CallDeeplAPI
     {
-        static System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
+        static HttpClient httpClient = new();
         static public async Task<System.Net.Http.HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
         {
             var multiForm = new MultipartFormDataContent();
