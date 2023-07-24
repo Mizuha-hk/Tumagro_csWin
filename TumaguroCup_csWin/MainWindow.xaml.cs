@@ -270,10 +270,7 @@ namespace TumaguroCup_csWin
 
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
-            if (SettingWindow != null)
-            {
-                SettingWindow.Close();
-            }
+            SettingWindow?.Close();
         }
 
         #endregion

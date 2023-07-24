@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Graphics.Canvas.Effects;
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Web.Http;
 
 namespace Translator
 {
@@ -15,14 +15,7 @@ namespace Translator
         {
             apiKey = ReadApiKey("./temp.json");
 
-            if (CallDeeplAPI.CheckConnect(apiKey).Result)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return CallDeeplAPI.CheckConnect(apiKey).Result;
         }
 
         private static string ReadApiKey(string _filePath)
@@ -32,14 +25,8 @@ namespace Translator
             JsonDocument jsonDocument = JsonDocument.Parse(json);
             JsonElement rootElement = jsonDocument.RootElement;
             string apiKey = rootElement.GetProperty("APIKEY").GetString();
-            if (apiKey == null)
-            {
-                return "";
-            }
-            else
-            {
-                return apiKey;
-            }
+
+            return apiKey == null ? "" : apiKey;
         }
         /// <summary>
         /// 言語を翻訳します。
@@ -63,20 +50,13 @@ namespace Translator
             JsonElement firstTranslationElement = translationsElement[0];
             string text = firstTranslationElement.GetProperty("text").GetString();
 
-            if (text == null)
-            {
-                return "Error: could't translate.";
-            }
-            else
-            {
-                return text;
-            }
+            return text == null ? "Error: Coudn't translate." : text;
         }
     }
 
     static class CallDeeplAPI
     {
-        static System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
+        static HttpClient httpClient = new();
         static public async Task<System.Net.Http.HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
         {
             var multiForm = new MultipartFormDataContent();
@@ -106,14 +86,8 @@ namespace Translator
             multiForm.Add(new StringContent(Language.Language.JA), "target_lang");
 
             var temp = await httpClient.PostAsync(apiUrl, multiForm);
-            if (!temp.IsSuccessStatusCode)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+
+            return temp.IsSuccessStatusCode;
         }
 
     }
@@ -126,36 +100,36 @@ namespace Language
         /// <summary>
         /// Japanese 日本語
         /// </summary>
-        public static string JA = "JA";
+        public const string JA = "JA";
 
         /// <summary>
         /// English 英語
         /// </summary>
-        public static string EN = "EN";
+        public const string EN = "EN";
 
         /// <summary>
         /// Germany ドイツ語
         /// </summary>
-        public static string DE = "DE";
+        public const string DE = "DE";
 
         /// <summary>
         /// French フランス語
         /// </summary>
-        public static string FR = "ES";
+        public const string FR = "ES";
 
         /// <summary>
         /// Italy イタリア語
         /// </summary>
-        public static string IT = "IT";
+        public const string IT = "IT";
 
         /// <summary>
         /// Polish ポーランド語
         /// </summary>
-        public static string PL = "PL";
+        public const string PL = "PL";
 
         /// <summary>
         /// Dutch オランダ語
         /// </summary>
-        public static string NL = "NL";
+        public const string NL = "NL";
     }
 }
