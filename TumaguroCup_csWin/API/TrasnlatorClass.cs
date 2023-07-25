@@ -1,5 +1,4 @@
-﻿using Microsoft.Graphics.Canvas.Effects;
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
@@ -57,7 +56,7 @@ namespace Translator
     static class CallDeeplAPI
     {
         static HttpClient httpClient = new();
-        static public async Task<System.Net.Http.HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
+        static public async Task<HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
         {
             var multiForm = new MultipartFormDataContent();
 

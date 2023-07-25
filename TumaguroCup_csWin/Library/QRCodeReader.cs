@@ -26,14 +26,7 @@ namespace TumaguroCup_csWin.Library
 
             Result result = _reader.Decode(bytedata, softwareBitmap.PixelWidth, softwareBitmap.PixelHeight, RGBLuminanceSource.BitmapFormat.Unknown);
 
-            if(result != null)
-            {
-                return result.Text;
-            }
-            else
-            {
-                return null;
-            }
+            return result != null ? result.Text : null;
         }
 
         //SoftwareBitmapからbyte[]への変換
@@ -53,6 +46,7 @@ namespace TumaguroCup_csWin.Library
             BitmapDecoder decoder;
             decoder = await BitmapDecoder.CreateAsync(BitmapDecoder.BmpDecoderId, ras);
             PixelDataProvider provider = await decoder.GetPixelDataAsync();
+
             return provider.DetachPixelData();
         }
     }

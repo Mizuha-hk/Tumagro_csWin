@@ -16,6 +16,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,10 +34,10 @@ namespace TumaguroCup_csWin
             this.InitializeComponent();
 
             IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-            Microsoft.UI.Windowing.AppWindow appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            WindowId windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+            AppWindow appWindow = AppWindow.GetFromWindowId(windowId);
 
-            appWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.CompactOverlay);
+            appWindow.SetPresenter(AppWindowPresenterKind.CompactOverlay);
         }
 
         private void applicationButton_Click(object sender, RoutedEventArgs e)
