@@ -26,13 +26,13 @@ namespace TumaguroCup_csWin.Library
 
             Result result = _reader.Decode(bytedata, softwareBitmap.PixelWidth, softwareBitmap.PixelHeight, RGBLuminanceSource.BitmapFormat.Unknown);
 
-            return result != null ? result.Text : null;
+            return result?.Text;
         }
 
         //SoftwareBitmapからbyte[]への変換
         private static async Task<byte[]> ConvertSoftwareBitmapToByte(SoftwareBitmap softwareBitmap) {
             BitmapEncoder encoder;
-            InMemoryRandomAccessStream ras = new InMemoryRandomAccessStream();
+            var ras = new InMemoryRandomAccessStream();
             encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, ras);
             encoder.SetSoftwareBitmap(softwareBitmap);
             try

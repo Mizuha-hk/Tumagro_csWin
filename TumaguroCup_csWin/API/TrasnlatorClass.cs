@@ -25,7 +25,7 @@ namespace Translator
             JsonElement rootElement = jsonDocument.RootElement;
             string apiKey = rootElement.GetProperty("APIKEY").GetString();
 
-            return apiKey == null ? "" : apiKey;
+            return apiKey ?? "";
         }
         /// <summary>
         /// 言語を翻訳します。
@@ -49,7 +49,7 @@ namespace Translator
             JsonElement firstTranslationElement = translationsElement[0];
             string text = firstTranslationElement.GetProperty("text").GetString();
 
-            return text == null ? "Error: Coudn't translate." : text;
+            return text ?? "Error: Coudn't translate.";
         }
     }
 
