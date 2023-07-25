@@ -40,9 +40,10 @@ namespace TumaguroCup_csWin
             AppWindow appWindow = AppWindow.GetFromWindowId(windowId);
 
             appWindow.SetPresenter(AppWindowPresenterKind.CompactOverlay);
+            appWindow.Title = "TransClip-Settings";
         }
 
-        private void applicationButton_Click(object sender, RoutedEventArgs e)
+        private async void applicationButton_Click(object sender, RoutedEventArgs e)
         {
             if(string.IsNullOrEmpty(inputApiKey.Text))
             {
@@ -50,7 +51,7 @@ namespace TumaguroCup_csWin
             }
             else
             {
-                if(!CallDeeplAPI.CheckConnect(inputApiKey.Text).Result)
+                if(!await CallDeeplAPI.CheckConnect(inputApiKey.Text))
                 {
                     this.ErrorMassage.Text = "APIÉLÅ[Ç™óLå¯Ç≈ÇÕÇ†ÇËÇ‹ÇπÇÒ.";
                 }

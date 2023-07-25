@@ -32,7 +32,7 @@ namespace TumaguroCup_csWin
         private bool IsDetected { get; set; } = false;
         private SoftwareBitmap? Image { get; set; }
         private SoftwareBitmapSource ImageSource { get; set; } = new();
-        private bool IsApiAvalable { get; set; }
+        private bool IsApiAvalable { get; set; } = false;
 
         private SettingWindow SettingWindow { get; set; } 
 #nullable disable
@@ -55,11 +55,13 @@ namespace TumaguroCup_csWin
 
             ToolPalette.SourcePageType = typeof(Note);
 
+            Update();
         }
 
         private async void LoadAsync()
         {
             IsApiAvalable = await Translator.Translator.SetUp();
+            Task.WaitAll();
         }
 
         private void Update()

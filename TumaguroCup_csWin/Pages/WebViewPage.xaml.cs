@@ -45,7 +45,7 @@ namespace TumaguroCup_csWin.Pages
                 {
                     this.webViewer.Source = new Uri(e.Parameter.ToString()); 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     this.UriBox.Text = e.Parameter.ToString();
                 }
