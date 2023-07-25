@@ -3,30 +3,22 @@ using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TumaguroCup_csWin.Library;
 
 namespace Translator
 {
     static class Translator
     {
-        private static string apiKey = "5ec95d97-cd5c-222b-8684-17eefdf88e7c:fx";
+        private static string apiKey = LocalSetting.LoadApiKey();
+        //private static string apiKey = "5ec95d97-cd5c-222b-8684-17eefdf88e7c:fx";
 
-        public static bool SetUp()
+        public static async Task<bool> SetUp()
         {
-            apiKey = ReadApiKey("./temp.json");
+            apiKey = LocalSetting.LoadApiKey();
 
-            return CallDeeplAPI.CheckConnect(apiKey).Result;
+            return await CallDeeplAPI.CheckConnect(apiKey);
         }
 
-        private static string ReadApiKey(string _filePath)
-        {
-            string json = File.ReadAllText(_filePath);
-
-            JsonDocument jsonDocument = JsonDocument.Parse(json);
-            JsonElement rootElement = jsonDocument.RootElement;
-            string apiKey = rootElement.GetProperty("APIKEY").GetString();
-
-            return apiKey ?? "";
-        }
         /// <summary>
         /// 言語を翻訳します。
         /// 第三引数の原文の言語は省略可能です。
@@ -55,38 +47,39 @@ namespace Translator
 
     static class CallDeeplAPI
     {
-        static HttpClient httpClient = new();
+        private const string apiUri = "https://api-free.deepl.com/v2/translate";
+        private static readonly HttpClient httpClient = new();
+
+
         static public async Task<HttpResponseMessage> Post(string apiKey, string target_lang, string sentence, string source_lang = "")
         {
-            var multiForm = new MultipartFormDataContent();
+            var multiForm = new MultipartFormDataContent
+            {
+                { new StringContent(apiKey), "auth_key" },
+                { new StringContent(sentence), "text" },
+                { new StringContent(target_lang), "target_lang" }
+            };
 
-            string apiUrl = "https://api-free.deepl.com/v2/translate";
-
-            multiForm.Add(new StringContent(apiKey), "auth_key");
-            multiForm.Add(new StringContent(sentence), "text");
-            multiForm.Add(new StringContent(target_lang), "target_lang");
-            if (source_lang != "")
+            if (!string.IsNullOrEmpty(source_lang))
             {
                 multiForm.Add(new StringContent(source_lang), "source_lang");
             }
 
-            return await httpClient.PostAsync(apiUrl, multiForm);
+            return await httpClient.PostAsync(apiUri, multiForm);
         }
 
         public static async Task<bool> CheckConnect(string apiKey)
         {
-            Console.WriteLine(apiKey);
-            var multiForm = new MultipartFormDataContent();
+            var multiForm = new MultipartFormDataContent
+            {
+                { new StringContent(apiKey), "auth_key" },
+                { new StringContent(""), "text" },
+                { new StringContent(Language.Language.JA), "target_lang" }
+            };
 
-            string apiUrl = "https://api-free.deepl.com/v2/translate";
+            var result = await httpClient.PostAsync(apiUri, multiForm);
 
-            multiForm.Add(new StringContent(apiKey), "auth_key");
-            multiForm.Add(new StringContent(""), "text");
-            multiForm.Add(new StringContent(Language.Language.JA), "target_lang");
-
-            var temp = await httpClient.PostAsync(apiUrl, multiForm);
-
-            return temp.IsSuccessStatusCode;
+            return result.IsSuccessStatusCode;
         }
 
     }

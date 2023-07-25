@@ -10,7 +10,7 @@ using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.Storage;
-
+using Translator;
 using TumaguroCup_csWin.Pages;
 using TumaguroCup_csWin.Library;
 
@@ -32,6 +32,7 @@ namespace TumaguroCup_csWin
         private bool IsDetected { get; set; } = false;
         private SoftwareBitmap? Image { get; set; }
         private SoftwareBitmapSource ImageSource { get; set; } = new();
+        private bool IsApiAvalable { get; set; }
 
         private SettingWindow SettingWindow { get; set; } 
 #nullable disable
@@ -43,6 +44,7 @@ namespace TumaguroCup_csWin
             this.InitializeComponent();
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(Topbar);
+            LoadAsync();
 
             #region AddEventHandler
 
@@ -52,6 +54,12 @@ namespace TumaguroCup_csWin
             #endregion
 
             ToolPalette.SourcePageType = typeof(Note);
+
+        }
+
+        private async void LoadAsync()
+        {
+            IsApiAvalable = await Translator.Translator.SetUp();
         }
 
         private void Update()
@@ -59,10 +67,18 @@ namespace TumaguroCup_csWin
             TrancelatingTextBox.Text = TrancelatingText;
             TrancelatedTextBox.Text = TrancelatedText;
             InputPictureView.Source = ImageSource;
+
+            if (!IsApiAvalable)
+            {
+                ErrorMessage.Text = "APIキーが有効ではありません。有効なAPIキーを入力してください。";
+            }
+            else
+            {
+                ErrorMessage.Text = string.Empty;
+            }
         }
 
-        //GetContentFromClipBoad
-        private async Task<SoftwareBitmap> GetClipboardImage()
+        private static async Task<SoftwareBitmap> GetClipboardImage()
         {
             DataPackageView dataPackageView = Clipboard.GetContent();
 
@@ -80,7 +96,7 @@ namespace TumaguroCup_csWin
             return null;
         }
 
-        private async Task<string> GetClipboadText()
+        private static async Task<string> GetClipboadText()
         {
             DataPackageView dataPackageView = Clipboard.GetContent();
             if(dataPackageView.Contains(StandardDataFormats.Text))

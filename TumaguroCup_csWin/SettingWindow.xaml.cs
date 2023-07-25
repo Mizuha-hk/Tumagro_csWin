@@ -18,6 +18,8 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
+using TumaguroCup_csWin.Library;
+using Translator;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -48,23 +50,14 @@ namespace TumaguroCup_csWin
             }
             else
             {
-                try
+                if(!CallDeeplAPI.CheckConnect(inputApiKey.Text).Result)
                 {
-                    string jsonString = JsonSerializer.Serialize(inputApiKey.Text);
-                    using (var sw = new StreamWriter("./temp.json", false, System.Text.Encoding.UTF8))
-                    {
-                        // JSON データをファイルに書き込み
-                        sw.Write(jsonString);
-                    }
-                    var flg = Translator.Translator.SetUp();
-                    if(flg == false)
-                    {
-                        throw new Exception();
-                    }
+                    this.ErrorMassage.Text = "APIキーが有効ではありません.";
                 }
-                catch (Exception ex)
+                else
                 {
-                    ErrorMassage.Text = "ファイル入出力に失敗しました。";
+                    LocalSetting.RegistorApiKey(inputApiKey.Text);
+                    this.Close();
                 }
             }
         }
